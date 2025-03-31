@@ -1,0 +1,24 @@
+torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
+transformers
+sentence-transformers
+numpy
+pandas
+scikit-learn==1.3.0         # For applicant scoring algorithms
+ipykernel
+pymysql
+python-dotenv
+nltk
+langchain
+langchain_community
+openai
+langchain-openai
+langchain-chroma
+pypdf
+streamlit
+langchain_huggingface
+groq
+langchain_groq
+pdf2image
+weasyprint
+markdown2
+html2docx
