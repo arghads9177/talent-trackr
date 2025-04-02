@@ -13,7 +13,7 @@ langchain_community
 openai
 langchain-openai
 langchain-chroma
-pypdf
+pypdf2
 streamlit
 langchain_huggingface
 groq

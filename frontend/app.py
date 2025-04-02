@@ -1,6 +1,13 @@
 import streamlit as st
-from backend import database
 from streamlit import session_state as ss
+import sys
+import os
+
+# Add the project root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Import backend modules
+from backend import database, ats_backend
 
 st.set_page_config(page_title="TalentTrackr", layout="centered")
 
@@ -51,9 +58,10 @@ def signin():
     password = st.text_input("Password", type="password")
 
     if st.button("Sign In"):
-        if database.authenticate_user(username, password):
+        result = database.authenticate_user(username, password)
+        if result["status"]:
             ss.authenticated = True
-            ss.username = username
+            ss.user_id = result["user_id"]
             ss.page = "home"
             # st.set_query_params(page="home")
             reload_page()
@@ -67,7 +75,25 @@ def signin():
 
 def ats_score_generation():
     st.subheader("ATS Score Generation")
-    st.write("ATS Score Generation Placeholder")
+    
+    if "user_id" not in ss or not ss.authenticated:
+        st.warning("Please Sign In to access this feature.")
+        return
+
+    user_id = ss.user_id
+
+    resume_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+    job_description = st.text_area("Enter Job Description")
+
+    if st.button("Generate ATS Score"):
+        if resume_file and job_description:
+            with st.spinner("Generating ATS Score..."):
+                # score = ats_backend.generate_ats_score(user_id, resume_file, job_description)
+                # st.success(f"ATS Score: {round(score * 100, 2)}%")
+                result = ats_backend.evaluate_resume_ats_score(user_id, resume_file, job_description)
+                st.write(result)
+        else:
+            st.error("Please upload a resume and enter a job description.")
 
 def resume_summarization():
     st.subheader("Resume Summarization")

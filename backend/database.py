@@ -34,15 +34,15 @@ def create_user(firstname, lastname, email, username, password):
     return True, "User created successfully."
 
 def authenticate_user(username, password):
-    query = "SELECT password_hash FROM users WHERE username = %s"
+    query = "SELECT password_hash, user_id FROM users WHERE username = %s"
     cursor.execute(query, (username,))
     result = cursor.fetchone()
 
     if result:
         stored_password_hash = result[0]
         if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
-            return True
-    return False
+            return {"user_id": result[1], "status": True}
+    return {"status": False}
 
 def close_connection():
     cursor.close()
