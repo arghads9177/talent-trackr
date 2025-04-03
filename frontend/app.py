@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit import session_state as ss
 import sys
 import os
+import markdown2
 
 # Add the project root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -97,11 +98,79 @@ def ats_score_generation():
 
 def resume_summarization():
     st.subheader("Resume Summarization")
-    st.write("Resume Summarization Placeholder")
+
+    if "user_id" not in ss or not ss.authenticated:
+        st.warning("Please Sign In to access this feature.")
+        return
+
+    user_id = ss.user_id
+
+    resume_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+
+    if st.button("Summarize Resume"):
+        if resume_file:
+            with st.spinner("Summarizing Resume..."):
+                summarized_text = ats_backend.generate_resume_summary(user_id, resume_file)
+                st.success("Resume Summarization Completed!")
+                st.text_area("Summarized Resume", value=summarized_text, height=300)
+        else:
+            st.error("Please upload a resume to summarize.")
 
 def ats_friendly_resume_generation():
-    st.subheader("ATS Friendly Resume Generation")
-    st.write("ATS Friendly Resume Generation Placeholder")
+    st.subheader("ATS-Friendly Resume Generation")
+
+    if "username" not in ss or not ss.authenticated:
+        st.warning("Please Sign In to access this feature.")
+        return
+
+    username = ss.username
+
+    resume_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+    job_description = st.text_area("Enter Job Description")
+
+    if st.button("Generate ATS-Friendly Resume"):
+        if resume_file and job_description.strip():
+            with st.spinner("Generating ATS-Friendly Resume..."):
+                generated_resume = ats_backend.generate_ats_friendly_resume(resume_file, job_description)
+                
+                st.success("Resume Generation Completed!")
+                # st.text_area("Generated Resume", value=generated_resume, height=300)
+
+                # # Save generated resume
+                # word_path =  ats_backend.save_to_word(generated_resume, "_ats_resume")
+                # pdf_path =  ats_backend.save_to_pdf(generated_resume, "_ats_resume")
+
+                # st.success("ATS-Friendly Resume Generated Successfully!")
+
+                # # Read the saved files
+                # with open(word_path, "rb") as word_file:
+                #     word_bytes = word_file.read()
+                # with open(pdf_path, "rb") as pdf_file:
+                #     pdf_bytes = pdf_file.read()
+
+                # # Provide download buttons
+                # st.download_button(
+                #     label="Download as Word Document",
+                #     data=word_bytes,
+                #     file_name="ATS_Resume.docx",
+                #     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                # )
+                
+                # st.download_button(
+                #     label="Download as PDF",
+                #     data=pdf_bytes,
+                #     file_name="ATS_Resume.pdf",
+                #     mime="application/pdf"
+                # )
+                st.write(markdown2.markdown(generated_resume), unsafe_allow_html=True)
+    
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.download_button("Download as DOCX", ats_backend.get_docx(generated_resume), "resume.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                with col2:
+                    st.download_button("Download as PDF", ats_backend.get_pdf(generated_resume), "resume.pdf", "application/pdf")
+        else:
+            st.error("Please upload a resume and provide a job description.")
 
 def main():
     # query_params = st.experimental_get_query_params()

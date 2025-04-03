@@ -22,3 +22,5 @@ pdf2image
 weasyprint
 markdown2
 html2docx
+docx
+fpdf
