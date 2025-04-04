@@ -115,9 +115,13 @@ def generate_resume_summary(user_id, resume_pdf):
 
 # Generate ATS-Friendly Resume using LLM
 def generate_ats_friendly_resume(resume_pdf, job_description):
+    # Extract text from the uploaded PDF file
     resume_text = extract_text_from_pdf(resume_pdf)
+    
+    # Define the model
     llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0)
     
+    # Define the prompt template with proper variable handling
     ats_prompt = PromptTemplate(
         input_variables=["job_description", "resume_text"],
         template="""
@@ -130,48 +134,47 @@ def generate_ats_friendly_resume(resume_pdf, job_description):
 
         Use the following format:
 
-        Header:
-            - Name: {Your Full Name}
-            - Address: {Your Address}
-            - Contact Number: {Your Contact Number}
-            - Email: {Your Email}
+        ## {{Your Full Name}}
+        - **Address:** {{Your Address}}
+        - **Contact Number:** {{Your Contact Number}}
+        - **Email:** {{Your Email}}
 
-        Personal Summary:
-            {Write a concise, impactful summary highlighting your expertise, experience, and specializations.}
+        #### Personal Summary:
 
-        Highlights:
-            - {List of relevant skills and technologies, grouped under suitable categories like Programming Languages, Frameworks, Tools, etc.}
+            {{Write a concise, impactful summary highlighting your expertise, experience, and specializations.}}
 
-        Experience:
-            {List professional experiences in reverse chronological order. Include role title, company name, location, duration, and key responsibilities.}
+        #### Highlights:
+            - {{List of relevant skills and technologies, grouped under suitable categories like Programming Languages, Frameworks, Tools, etc.}}
 
-        Education:
-            {Provide educational qualifications in reverse chronological order. Include degree, institution, year of completion, and GPA if applicable.}
+        #### Experience:
 
-        Accomplishments:
-            {List key accomplishments, projects, or contributions relevant to the job description. Include web or mobile applications, systems developed, or other significant achievements.}
+            {{List professional experiences in reverse chronological order. Include role title, company name, location, duration, and key responsibilities.}}
 
-        Personal Information:
-            - Date of Birth: {Your Date of Birth}
-            - Nationality: {Your Nationality}
-            - Marital Status: {Your Marital Status}
+        #### Education:
+            {{Provide educational qualifications in reverse chronological order. Include degree, institution, year of completion, and GPA if applicable.}}
 
-        Languages:
-            {List languages you are proficient in.}
+        #### Accomplishments:
+            {{List key accomplishments, projects, or contributions relevant to the job description. Include web or mobile applications, systems developed, or other significant achievements.}}
 
-        Guardian Name:
-            {Your Guardian's Name}
+        #### Personal Information:
+            - **Date of Birth:** {{Your Date of Birth}}
+            - **Nationality:** {{Your Nationality}}
+            - **Marital Status:** {{Your Marital Status}}
+
+        #### Languages:
+
+            {{List languages you are proficient in.}}
 
         Job Description: "{job_description}"
         Resume Text: "{resume_text}"
-
         """
     )
-
+    
+    # Create the chain and generate the response
     ats_chain = ats_prompt | llm
     response = ats_chain.invoke({"job_description": job_description, "resume_text": resume_text})
+    
     return response.content.strip()
-
 # Save resume to Word file
 def save_to_word(content, filename):
     # Ensure the folder exists
