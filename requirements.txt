@@ -1,7 +1,7 @@
 torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
 transformers
 sentence-transformers
-numpy
+numpy==1.26.0
 pandas
 scikit-learn==1.3.0         # For applicant scoring algorithms
 ipykernel
@@ -24,3 +24,4 @@ markdown2
 html2docx
 docx
 fpdf
+cryptography
